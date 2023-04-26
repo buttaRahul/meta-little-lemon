@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import Food from "../assets/Food.jpg";
-import "./Header.css";
+import "./header.css";
 
 const Header = () => {
   return (
