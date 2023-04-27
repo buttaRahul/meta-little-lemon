@@ -12,7 +12,7 @@ const BookingConfirmation = ({
   return (
     <main>
       <section
-        style={{ display: "flex", "flex-direction": "column", gap: "0.5rem" }}
+        style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
       >
         <h1>Thank you for your booking, {name}!</h1>
         <p>

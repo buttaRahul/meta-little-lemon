@@ -7,19 +7,14 @@ const BookingForm = ({ navigate }) => {
     form,
     timeSlots,
     isFormValid,
-    changeNameHandler,
-    changeEmailHandler,
-    changeDateHandler,
-    changeTimeHandler,
-    changeGuestsHandler,
-    changeTableHandler,
-    changeOccasionHandler,
-    changeMessageHandler,
+    handleChange,
+    handleBlur,
     submitHandler,
+    formErrors,
   } = useForm();
 
-  function handleSubmit() {
-    const response = submitHandler();
+  function handleSubmit(e) {
+    const response = submitHandler(e);
     return response ? navigate("/booking-confirmation") : null;
   }
 
@@ -30,39 +25,56 @@ const BookingForm = ({ navigate }) => {
           <p>Your Name</p>
           <input
             value={form.name}
-            onChange={changeNameHandler}
+            onChange={handleChange}
+            onBlur={handleBlur}
             type="text"
             id="name"
+            name="name"
           />
+          {formErrors.name && <p className="error">{formErrors.name}</p>}
         </label>
         <label htmlFor="email">
           <p>Your Email</p>
           <input
             value={form.email}
-            onChange={changeEmailHandler}
+            // onChange={changeEmailHandler}
+            onChange={handleChange}
+            onBlur={handleBlur}
             type="email"
             id="email"
+            name="email"
           />
+          {formErrors.email && <p className="error">{formErrors.email}</p>}
         </label>
         <label htmlFor="res-date">
           <p>Choose date</p>
           <input
             value={form.date}
-            onChange={changeDateHandler}
+            onChange={handleChange}
+            onBlur={handleBlur}
             type="date"
             id="res-date"
             placeholder="Date"
+            name="date"
           />
+          {formErrors.date && <p className="error">{formErrors.date}</p>}
         </label>
         <label htmlFor="res-time">
           <p>Choose time</p>
-          <select onChange={changeTimeHandler} value={form.time} id="res-time">
+          <select
+            onChange={handleChange}
+            onBlur={handleBlur}
+            value={form.time}
+            id="res-time"
+            name="time"
+          >
             {timeSlots.map((slot) => (
               <option key={slot} value={slot}>
                 {slot}
               </option>
             ))}
           </select>
+          {formErrors.time && <p className="error">{formErrors.time}</p>}
         </label>
       </div>
       <div className="column">
@@ -70,21 +82,23 @@ const BookingForm = ({ navigate }) => {
           <p>Number of guests</p>
           <input
             value={form.numberOfGuests}
-            onChange={changeGuestsHandler}
+            onChange={handleChange}
             type="number"
             placeholder="1"
             min="1"
             max="10"
             id="guests"
             required
+            name="numberOfGuests"
           />
         </label>
         <label htmlFor="occasion">
           <p>Occasion</p>
           <select
             value={form.occasion}
-            onChange={changeOccasionHandler}
+            onChange={handleChange}
             id="occasion"
+            name="occasion"
           >
             <option value="">None</option>
             <option value="birthday">Birthday</option>
@@ -96,8 +110,9 @@ const BookingForm = ({ navigate }) => {
           <p>Table preference</p>
           <select
             value={form.tablePreference}
-            onChange={changeTableHandler}
-            id="occasion"
+            onChange={handleChange}
+            id="tablePreference"
+            name="tablePreference"
           >
             <option value="">None</option>
             <option value="inside">Inside</option>
@@ -110,7 +125,7 @@ const BookingForm = ({ navigate }) => {
           <p>Additional requests</p>
           <textarea
             value={form.message}
-            onChange={changeMessageHandler}
+            onChange={handleChange}
             name="message"
             id="message"
             cols="30"

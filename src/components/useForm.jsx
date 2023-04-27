@@ -18,8 +18,8 @@ const ACTION_TYPES = {
   EMAIL: 1,
   DATE: 2,
   TIME: 3,
-  GUESTS: 4,
-  TABLE: 5,
+  NUMBEROFGUESTS: 4,
+  TABLEPREFERENCE: 5,
   OCCASION: 6,
   MESSAGE: 7,
 };
@@ -46,12 +46,12 @@ function formReducer(state, action) {
         ...state,
         time: action.payload,
       };
-    case ACTION_TYPES.GUESTS:
+    case ACTION_TYPES.NUMBEROFGUESTS:
       return {
         ...state,
         numberOfGuests: action.payload,
       };
-    case ACTION_TYPES.TABLE:
+    case ACTION_TYPES.TABLEPREFERENCE:
       return {
         ...state,
         tablePreference: action.payload,
@@ -75,53 +75,67 @@ const useForm = () => {
   const [form, dispatch] = useReducer(formReducer, initialState);
   const [timeSlots, setTimeslots] = useState(["Choose date first"]);
   const [isFormValid, setFormValid] = useState(false);
+  const [touches, updateTouches] = useState({
+    name: false,
+    email: false,
+    date: false,
+    time: false,
+    // numberOfGuests: false,
+  });
+  const [formErrors, setFormErrors] = useState({});
   const formContext = useFormContext();
 
   useEffect(() => {
-    if (
-      form.email.includes("@") &&
-      form.email.includes(".") &&
-      form.email.trim().length > 5 &&
-      form.name.trim().length >= 3 &&
-      form.date &&
-      form.time &&
-      form.numberOfGuests
-    ) {
-      setFormValid(true);
+    const errs = {};
+    if (touches.name) {
+      if (!form.name) {
+        errs.name = "Name cannont be blank";
+      }
+      if (form.name && form.name.length < 3) {
+        errs.name = "Name cannont be leeser tahn 3 chars";
+      }
     }
-  }, [form]);
+    if (touches.email) {
+      if (!form.email) {
+        errs.email = "Email cannont be blank";
+      }
+      if (form.email && !form.email.includes("@")) {
+        errs.email = "Email is not valid";
+      }
+      if (form.email && !form.email.includes(".")) {
+        errs.email = "Email is not valid";
+      }
+    }
 
-  const changeNameHandler = (e) => {
-    dispatch({ type: ACTION_TYPES.NAME, payload: e.target.value });
+    if (touches.date && !form.date) {
+      errs.date = "Date not selected";
+    }
+    if (touches.time && !form.time) {
+      errs.time = "Time not selected";
+    }
+    if (touches.numberOfGuests && !form.numberOfGuests) {
+      errs.numberOfGuests = "Number of Guests not specified";
+    }
+    setFormErrors(errs);
+
+    const isValidForm =
+      Object.keys(touches).every((k) => touches[k]) &&
+      Object.keys(errs).length === 0;
+    setFormValid(isValidForm);
+  }, [form, touches]);
+
+  const handleChange = (e) => {
+    const name = e.target.name;
+    const value = e.target.value;
+    if (name === "date") {
+      setTimeslots(fetchAPI(new Date(e.target.value)));
+    }
+    dispatch({ type: ACTION_TYPES[name.toUpperCase()], payload: value });
   };
 
-  const changeEmailHandler = (e) => {
-    dispatch({ type: ACTION_TYPES.EMAIL, payload: e.target.value });
-  };
-
-  const changeDateHandler = (e) => {
-    dispatch({ type: ACTION_TYPES.DATE, payload: e.target.value });
-    setTimeslots(fetchAPI(new Date(e.target.value)));
-  };
-
-  const changeTimeHandler = (e) => {
-    dispatch({ type: ACTION_TYPES.TIME, payload: e.target.value });
-  };
-
-  const changeGuestsHandler = (e) => {
-    dispatch({ type: ACTION_TYPES.GUESTS, payload: e.target.value });
-  };
-
-  const changeTableHandler = (e) => {
-    dispatch({ type: ACTION_TYPES.TABLE, payload: e.target.value });
-  };
-
-  const changeOccasionHandler = (e) => {
-    dispatch({ type: ACTION_TYPES.OCCASION, payload: e.target.value });
-  };
-
-  const changeMessageHandler = (e) => {
-    dispatch({ type: ACTION_TYPES.MESSAGE, payload: e.target.value });
+  const handleBlur = (e) => {
+    const name = e.target.name;
+    updateTouches({ ...touches, [name]: true });
   };
 
   const submitHandler = (e) => {
@@ -139,15 +153,11 @@ const useForm = () => {
     form,
     timeSlots,
     isFormValid,
-    changeNameHandler,
-    changeEmailHandler,
-    changeDateHandler,
-    changeTimeHandler,
-    changeGuestsHandler,
-    changeTableHandler,
-    changeOccasionHandler,
-    changeMessageHandler,
+    handleChange,
+    handleBlur,
     submitHandler,
+    touches,
+    formErrors,
   };
 };
 
